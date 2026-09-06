@@ -28,6 +28,20 @@ func main() {
 		log.Fatalf("Could not create channel %v", err)
 	}
 
+	queueKey := routing.GameLogSlug + ".*"
+
+	_, queue, err := pubsub.DeclareAndBind(
+		rabbit_conn,
+		routing.ExchangePerilTopic,
+		routing.GameLogSlug,
+		queueKey,
+		pubsub.SimpleQueueDurable,
+	)
+	if err != nil {
+		log.Fatalf("Could not subscribe to queue: %v", err)
+	}
+	fmt.Printf("Queue %v declared and bound!\n", queue.Name)
+
 	gamelogic.PrintServerHelp()
 
 	for {
@@ -54,7 +68,6 @@ func main() {
 		} else {
 			fmt.Println("Unknown command")
 		}
-
 	}
 
 	//fmt.Println("Peril game server connected to RabbitMQ!")
