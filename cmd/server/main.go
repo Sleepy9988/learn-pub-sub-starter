@@ -30,17 +30,31 @@ func main() {
 
 	queueKey := routing.GameLogSlug + ".*"
 
-	_, queue, err := pubsub.DeclareAndBind(
+	err = pubsub.SubscribeGob(
 		rabbit_conn,
 		routing.ExchangePerilTopic,
 		routing.GameLogSlug,
 		queueKey,
 		pubsub.SimpleQueueDurable,
+		handlerLogs(),
 	)
 	if err != nil {
-		log.Fatalf("Could not subscribe to queue: %v", err)
+		log.Fatalf("could not start consuming logs: %v", err)
 	}
-	fmt.Printf("Queue %v declared and bound!\n", queue.Name)
+
+	/*
+		_, queue, err := pubsub.DeclareAndBind(
+			rabbit_conn,
+			routing.ExchangePerilTopic,
+			routing.GameLogSlug,
+			queueKey,
+			pubsub.SimpleQueueDurable,
+		)
+		if err != nil {
+			log.Fatalf("Could not subscribe to queue: %v", err)
+		}
+		fmt.Printf("Queue %v declared and bound!\n", queue.Name)
+	*/
 
 	gamelogic.PrintServerHelp()
 
